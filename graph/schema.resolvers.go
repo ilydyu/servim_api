@@ -12,12 +12,28 @@ import (
 
 // CreateCompany is the resolver for the createCompany field.
 func (r *mutationResolver) CreateCompany(ctx context.Context, input model.NewCompany) (*model.Company, error) {
-	return &model.Company{ID: "1", Title: "qweqwe"}, nil
+	var company model.Company
+
+	err := r.Db.QueryRow(ctx, "insert into companies (title) values ($1) returning id, title;", input.Title).Scan(&company.ID, &company.Title)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &company, nil
 }
 
 // Company is the resolver for the company field.
 func (r *queryResolver) Company(ctx context.Context, id string) (*model.Company, error) {
-	return &model.Company{ID: "1", Title: "qweqwe"}, nil
+	var company model.Company
+
+	err := r.Db.QueryRow(ctx, "select * from companies where id = $1", id).Scan(&company.ID, &company.Title)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &company, nil
 }
 
 // User is the resolver for the user field.

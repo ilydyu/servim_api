@@ -1,6 +1,7 @@
 type Company {
   id: ID!
   title: String!
+  phone: String!
   branches: [Branch!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -55,19 +56,127 @@ type User {
   updatedAt: DateTime!
 }
 
-type Query {
-  company(id: ID!): Company!
-  user(id: ID!): User!
-  branch(id: ID!): Branch!
-  branches(companyId: ID!): [Branch]!
-  specialist(id: ID!): Specialist!
-  specialists: [Specialist]!
-}
+# Create
 
 input NewCompany {
   title: String!
 }
 
+input NewBranch {
+  companyId: ID!
+  title: String!
+  address: String!
+}
+
+input NewSpecialist {
+  branchId: ID!
+  firstName: String!
+  lastName: String!
+  weekends: [Int]!
+  work_from: DateTime!
+  work_until: DateTime!
+}
+
+input NewService {
+  specialistId: ID!
+  price: Float!
+}
+
+input NewAppointment {
+  serviceId: ID!
+  userId: ID!
+  description: String!
+  datetime: DateTime!
+}
+
+input NewUser {
+  firstName: String!
+  lastName: String!
+  phone: String!
+}
+
+# Update
+
+input UpdateCompany {
+  companyId: ID!
+  title: String!
+}
+
+input UpdateBranch {
+  branchId: ID!
+  title: String
+  address: String
+}
+
+input UpdateSpecialist {
+  specialistId: ID!
+  firstName: String
+  lastName: String
+  weekends: [Int]
+  work_from: DateTime
+  work_until: DateTime
+}
+
+input UpdateService {
+  serviceId: ID!
+  price: Float
+}
+
+input UpdateAppointment {
+  appointmentId: ID!
+  description: String
+  datetime: DateTime
+}
+
+# Delete
+
+input DeleteCompany {
+  companyId: ID!
+}
+
+input DeleteBranch {
+  branchId: ID!
+}
+
+input DeleteSpecialist {
+  specialistId: ID!
+}
+
+input DeleteService {
+  serviceId: ID!
+}
+
+input DeleteAppointment {
+  appointmentId: ID!
+}
+
+type Query {
+  company(id: ID!): Company!
+  user(id: ID!): User!
+  branch(id: ID!): Branch!
+  branches(companyId: ID!): [Branch]!
+  specialistsByBranch(branchId: ID!): [Specialist]!
+  specialistsByCompany(companyId: ID!): [Specialist]!
+  services(specialistId: ID!): [Service]!
+  appointments(serviceId: ID!): [Appointment]!
+}
+
+
 type Mutation {
   createCompany(input: NewCompany!): Company!
+  createBranch(input: NewBranch!): Branch!
+  createUser(input: NewUser!): User!
+  createSpecialist(input: NewSpecialist!): Specialist!
+  createService(input: NewService!): Service!
+  createAppointment(input: NewAppointment!): Appointment!
+  updateCompany(input: UpdateCompany!): Company!
+  updateBranch(input: UpdateBranch!): Branch!
+  updateSpecialist(input: UpdateSpecialist!): Specialist!
+  updateService(input: UpdateService!): Service!
+  updateAppointment(input: UpdateAppointment!): Appointment!
+  deleteCompany(input: DeleteCompany!): Boolean
+  deleteBranch(input: DeleteBranch!): Boolean
+  deleteSpecialist(input: DeleteSpecialist!): Boolean
+  deleteService(input: DeleteService!): Boolean
+  deleteAppointment(input: DeleteAppointment!): Boolean
 }
