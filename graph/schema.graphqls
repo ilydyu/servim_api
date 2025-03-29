@@ -1,0 +1,73 @@
+type Company {
+  id: ID!
+  title: String!
+  branches: [Branch!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Branch {
+  id: ID!
+  title: String!
+  address: String!
+  specialists: [Specialist!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Specialist {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  weekends: [Int]!
+  work_from: DateTime!
+  work_until: DateTime!
+  services: [Service!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Service {
+  id: ID!
+  price: Float!
+  appointments: [Appointment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+scalar DateTime
+
+type Appointment {
+  id: ID!
+  description: String!
+  datetime: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  appointments: [Appointment!]!
+  phone: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  company(id: ID!): Company!
+  user(id: ID!): User!
+  branch(id: ID!): Branch!
+  branches(companyId: ID!): [Branch]!
+  specialist(id: ID!): Specialist!
+  specialists: [Specialist]!
+}
+
+input NewCompany {
+  title: String!
+}
+
+type Mutation {
+  createCompany(input: NewCompany!): Company!
+}
