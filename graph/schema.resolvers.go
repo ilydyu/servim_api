@@ -7,7 +7,9 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"servim_api/graph/model"
+	"slices"
 )
 
 // CreateCompany is the resolver for the createCompany field.
@@ -23,6 +25,104 @@ func (r *mutationResolver) CreateCompany(ctx context.Context, input model.NewCom
 	return &company, nil
 }
 
+// CreateBranch is the resolver for the createBranch field.
+func (r *mutationResolver) CreateBranch(ctx context.Context, input model.NewBranch) (*model.Branch, error) {
+	var branch model.Branch
+	branch.Company = &model.Company{}
+
+	err := r.Db.QueryRow(
+		ctx,
+		"INSERT INTO branches (title, address, company_id) VALUES ($1, $2, $3) RETURNING id, title, address, company_id, created_at, updated_at;",
+		input.Title, input.Address, input.CompanyID,
+	).Scan(&branch.ID, &branch.Title, &branch.Address, &branch.Company.ID, &branch.CreatedAt, &branch.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if slices.Contains(graphql.CollectAllFields(ctx), "company") {
+		var company model.Company
+
+		err = r.Db.QueryRow(ctx, "select * from companies where id = $1", branch.Company.ID).Scan(&company.ID, &company.Title, &company.CreatedAt, &company.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		branch.Company = &company
+	}
+
+	return &branch, nil
+}
+
+// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+}
+
+// CreateSpecialist is the resolver for the createSpecialist field.
+func (r *mutationResolver) CreateSpecialist(ctx context.Context, input model.NewSpecialist) (*model.Specialist, error) {
+	panic(fmt.Errorf("not implemented: CreateSpecialist - createSpecialist"))
+}
+
+// CreateService is the resolver for the createService field.
+func (r *mutationResolver) CreateService(ctx context.Context, input model.NewService) (*model.Service, error) {
+	panic(fmt.Errorf("not implemented: CreateService - createService"))
+}
+
+// CreateAppointment is the resolver for the createAppointment field.
+func (r *mutationResolver) CreateAppointment(ctx context.Context, input model.NewAppointment) (*model.Appointment, error) {
+	panic(fmt.Errorf("not implemented: CreateAppointment - createAppointment"))
+}
+
+// UpdateCompany is the resolver for the updateCompany field.
+func (r *mutationResolver) UpdateCompany(ctx context.Context, input model.UpdateCompany) (*model.Company, error) {
+	panic(fmt.Errorf("not implemented: UpdateCompany - updateCompany"))
+}
+
+// UpdateBranch is the resolver for the updateBranch field.
+func (r *mutationResolver) UpdateBranch(ctx context.Context, input model.UpdateBranch) (*model.Branch, error) {
+	panic(fmt.Errorf("not implemented: UpdateBranch - updateBranch"))
+}
+
+// UpdateSpecialist is the resolver for the updateSpecialist field.
+func (r *mutationResolver) UpdateSpecialist(ctx context.Context, input model.UpdateSpecialist) (*model.Specialist, error) {
+	panic(fmt.Errorf("not implemented: UpdateSpecialist - updateSpecialist"))
+}
+
+// UpdateService is the resolver for the updateService field.
+func (r *mutationResolver) UpdateService(ctx context.Context, input model.UpdateService) (*model.Service, error) {
+	panic(fmt.Errorf("not implemented: UpdateService - updateService"))
+}
+
+// UpdateAppointment is the resolver for the updateAppointment field.
+func (r *mutationResolver) UpdateAppointment(ctx context.Context, input model.UpdateAppointment) (*model.Appointment, error) {
+	panic(fmt.Errorf("not implemented: UpdateAppointment - updateAppointment"))
+}
+
+// DeleteCompany is the resolver for the deleteCompany field.
+func (r *mutationResolver) DeleteCompany(ctx context.Context, input model.DeleteCompany) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteCompany - deleteCompany"))
+}
+
+// DeleteBranch is the resolver for the deleteBranch field.
+func (r *mutationResolver) DeleteBranch(ctx context.Context, input model.DeleteBranch) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteBranch - deleteBranch"))
+}
+
+// DeleteSpecialist is the resolver for the deleteSpecialist field.
+func (r *mutationResolver) DeleteSpecialist(ctx context.Context, input model.DeleteSpecialist) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteSpecialist - deleteSpecialist"))
+}
+
+// DeleteService is the resolver for the deleteService field.
+func (r *mutationResolver) DeleteService(ctx context.Context, input model.DeleteService) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteService - deleteService"))
+}
+
+// DeleteAppointment is the resolver for the deleteAppointment field.
+func (r *mutationResolver) DeleteAppointment(ctx context.Context, input model.DeleteAppointment) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteAppointment - deleteAppointment"))
+}
+
 // Company is the resolver for the company field.
 func (r *queryResolver) Company(ctx context.Context, id string) (*model.Company, error) {
 	var company model.Company
@@ -32,6 +132,8 @@ func (r *queryResolver) Company(ctx context.Context, id string) (*model.Company,
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(company)
 
 	return &company, nil
 }
@@ -43,7 +145,14 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 
 // Branch is the resolver for the branch field.
 func (r *queryResolver) Branch(ctx context.Context, id string) (*model.Branch, error) {
-	panic(fmt.Errorf("not implemented: Branch - branch"))
+	var branch model.Branch
+
+	err := r.Db.QueryRow(ctx, "select * from branches where id = $1", id).Scan(&branch.ID, &branch.Title, &branch.Address, &branch.Company.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &branch, nil
 }
 
 // Branches is the resolver for the branches field.
@@ -51,14 +160,24 @@ func (r *queryResolver) Branches(ctx context.Context, companyID string) ([]*mode
 	panic(fmt.Errorf("not implemented: Branches - branches"))
 }
 
-// Specialist is the resolver for the specialist field.
-func (r *queryResolver) Specialist(ctx context.Context, id string) (*model.Specialist, error) {
-	panic(fmt.Errorf("not implemented: Specialist - specialist"))
+// SpecialistsByBranch is the resolver for the specialistsByBranch field.
+func (r *queryResolver) SpecialistsByBranch(ctx context.Context, branchID string) ([]*model.Specialist, error) {
+	panic(fmt.Errorf("not implemented: SpecialistsByBranch - specialistsByBranch"))
 }
 
-// Specialists is the resolver for the specialists field.
-func (r *queryResolver) Specialists(ctx context.Context) ([]*model.Specialist, error) {
-	panic(fmt.Errorf("not implemented: Specialists - specialists"))
+// SpecialistsByCompany is the resolver for the specialistsByCompany field.
+func (r *queryResolver) SpecialistsByCompany(ctx context.Context, companyID string) ([]*model.Specialist, error) {
+	panic(fmt.Errorf("not implemented: SpecialistsByCompany - specialistsByCompany"))
+}
+
+// Services is the resolver for the services field.
+func (r *queryResolver) Services(ctx context.Context, specialistID string) ([]*model.Service, error) {
+	panic(fmt.Errorf("not implemented: Services - services"))
+}
+
+// Appointments is the resolver for the appointments field.
+func (r *queryResolver) Appointments(ctx context.Context, serviceID string) ([]*model.Appointment, error) {
+	panic(fmt.Errorf("not implemented: Appointments - appointments"))
 }
 
 // Mutation returns MutationResolver implementation.

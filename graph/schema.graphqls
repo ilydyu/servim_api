@@ -9,6 +9,7 @@ type Company {
 
 type Branch {
   id: ID!
+  company: Company!
   title: String!
   address: String!
   specialists: [Specialist!]!
